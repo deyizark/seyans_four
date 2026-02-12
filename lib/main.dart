@@ -64,9 +64,25 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
   void doLogin() {
-    if (fakeDatabase[emailController.text] == passwordController.text) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    if (!isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Format imel la pa bon (ex: non@gmail.com)")));
+      return;
+    }
+    if (password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Modpas la dwe gen omwen 8 karaktè")));
+      return;
+    }
+
+    if (fakeDatabase[email] == password) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainNavigationScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Imel oswa modpas pa bon!")));
     }
@@ -85,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
             TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder())),
             const SizedBox(height: 20),
             SizedBox(width: double.infinity, child: ElevatedButton(onPressed: doLogin, child: const Text("KONEKTE"))),
-            // Bouton ki mennen nan Sign Up
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
               child: const Text("Ou pa gen kont? Enskri"),
@@ -97,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// --- NOUVO: SIGN UP PAGE ---
+// --- SIGN UP PAGE ---
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
   @override
@@ -166,41 +181,28 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// --- 3. HOME SCREEN ---
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+// --- MAIN NAVIGATION (LOCK BOTTOM NAV) ---
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int _currentIndex = 0;
+  final List<Widget> _pages = [
+    const HomeScreen(),
+    ListDisplayPage(title: "Favoris mwen", data: favorisList),
+    ListDisplayPage(title: "Panier mwen", data: panierList),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("EBoutikoo")),
-      drawer: const AppDrawer(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildCat("Kategori Elektwonik"),
-            _buildCat("Kategori Rad"),
-            const Padding(padding: EdgeInsets.all(15), child: Align(alignment: Alignment.centerLeft, child: Text("Top Pwodwi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 4,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
-              itemBuilder: (context, index) => _rectCard("Pwodwi Top $index"),
-            ),
-          ],
-        ),
-      ),
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (i) {
-          if (i == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => ListDisplayPage(title: "Favoris mwen", data: favorisList)));
-          if (i == 2) Navigator.push(context, MaterialPageRoute(builder: (_) => ListDisplayPage(title: "Panier mwen", data: panierList)));
-        },
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favoris'),
@@ -209,8 +211,38 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildCat(String name) {
+// --- 3. HOME SCREEN ---
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("EBoutikoo")),
+      drawer: const AppDrawer(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildCat(context, "Kategori Elektwonik"),
+            _buildCat(context, "Kategori Rad"),
+            const Padding(padding: EdgeInsets.all(15), child: Align(alignment: Alignment.centerLeft, child: Text("Top Pwodwi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 4,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
+              itemBuilder: (context, index) => _rectCard(context, "Pwodwi Top $index"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCat(BuildContext context, String name) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CategoryView(catName: name))),
       child: Container(
@@ -222,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _rectCard(String name) {
+  Widget _rectCard(BuildContext context, String name) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(productName: name))),
       child: Card(
@@ -237,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// --- EKRAN KATEGORI (LIS REKTANGILÈ) ---
+// --- EKRAN KATEGORI ---
 class CategoryView extends StatelessWidget {
   final String catName;
   const CategoryView({super.key, required this.catName});
@@ -267,7 +299,7 @@ class CategoryView extends StatelessWidget {
   }
 }
 
-// --- 4. DETAY (BOUTON + POU PANIER) ---
+// --- 4. DETAY ---
 class DetailScreen extends StatelessWidget {
   final String productName;
   const DetailScreen({super.key, required this.productName});
@@ -301,7 +333,7 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
-// --- 5. LIS PWODWI (VIA MENU) ---
+// --- 5. LIS TOUT PWODWI ---
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
   @override
@@ -309,6 +341,18 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
+  // Lis ki konbine tout pwodwi yo mande yo
+  final List<String> allProducts = [
+    "Laptop Dell",
+    "iPhone 15 Pro",
+    "Pwodwi Top 0",
+    "Pwodwi Top 1",
+    "Pwodwi Top 2",
+    "Pwodwi Top 3",
+    "Chemiz Lakou",
+    "Wòb Tradisyonèl"
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,9 +360,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 10, crossAxisSpacing: 10),
-        itemCount: 6,
+        itemCount: allProducts.length,
         itemBuilder: (context, index) {
-          String name = "Savon Kalite $index";
+          String name = allProducts[index];
           return Card(
             child: Column(
               children: [
@@ -346,7 +390,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 }
 
-// --- PAJ DISPLAY (FAVORIS / PANIER) ---
+// --- PAJ DISPLAY ---
 class ListDisplayPage extends StatelessWidget {
   final String title;
   final List<String> data;
@@ -363,9 +407,7 @@ class ListDisplayPage extends StatelessWidget {
         itemBuilder: (context, index) => ListTile(
           leading: const Icon(Icons.check_box, color: Color(0xFF0D2A5B)),
           title: Text(data[index]),
-          trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () {
-            // Ti bouton pou retire si w vle
-          }),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         ),
       ),
     );
