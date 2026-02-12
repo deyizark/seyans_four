@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-// --- DONE GLOBAL ---
 Map<String, String> fakeDatabase = {"lakoukajou@gmail.com": "poutimoun"};
 List<String> panierList = [];
 List<String> favorisList = [];
 
-// Done pou kategori yo
 Map<String, List<String>> kategotyData = {
-  "Kategori Elektwonik": ["Laptop Dell", "iPhone 15 Pro"],
-  "Kategori Rad": ["Chemiz Lakou", "Wòb Tradisyonèl"],
+  "Kategori Elektwonik": ["Dell XPS", "iPhone 15 Pro", "Samsung S23", "Aplle Watch"],
+  "Kategori Rad": ["Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"],
 };
 
 void main() => runApp(const MyApp());
@@ -30,7 +28,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- 1. SPLASH SCREEN ---
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -53,7 +50,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// --- 2. LOGIN PAGE ---
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
@@ -73,18 +69,18 @@ class _LoginPageState extends State<LoginPage> {
     String password = passwordController.text;
 
     if (!isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Format imel la pa bon (ex: non@gmail.com)")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Verifye enfòmasyon ou yo")));
       return;
     }
     if (password.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Modpas la dwe gen omwen 8 karaktè")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Modpas la dwe gen 8 karaktè pou pi piti")));
       return;
     }
 
     if (fakeDatabase[email] == password) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainNavigationScreen()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Imel oswa modpas pa bon!")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Imel oswa modpas la pa bon!")));
     }
   }
 
@@ -112,7 +108,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// --- SIGN UP PAGE ---
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
   @override
@@ -122,8 +117,8 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
-  final confirmEmailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   bool isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
@@ -147,16 +142,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
-                  controller: confirmEmailController,
-                  decoration: const InputDecoration(labelText: "Konfime Imel", border: OutlineInputBorder()),
-                  validator: (value) => (value != emailController.text) ? "Imel yo pa koresponn" : null,
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: "Modpas dwe gen 8 karaktè pou pi piti)", border: OutlineInputBorder()),
+                  validator: (value) => (value == null || value.length < 8) ? "8 karaktè pou pi piti" : null,
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
-                  controller: passwordController,
+                  controller: confirmPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder()),
-                  validator: (value) => (value == null || value.length < 8) ? "Modpas la dwe gen 8 karaktè min." : null,
+                  decoration: const InputDecoration(labelText: "Konfime Modpas", border: OutlineInputBorder()),
+                  validator: (value) => (value != passwordController.text) ? "Modpas yo pa koresponn" : null,
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -165,11 +161,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         fakeDatabase[emailController.text] = passwordController.text;
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kont kreye ak siksè!")));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kont kreye! Kounye a konekte.")));
                         Navigator.pop(context);
                       }
                     },
-                    child: const Text("ENSKRI"),
+                    child: const Text("Enskri"),
                   ),
                 ),
               ],
@@ -181,7 +177,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// --- MAIN NAVIGATION (LOCK BOTTOM NAV) ---
+// --- 4. MAIN NAVIGATION (LOCK BOTTOM NAV) ---
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
   @override
@@ -190,30 +186,31 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    ListDisplayPage(title: "Favoris mwen", data: favorisList),
-    ListDisplayPage(title: "Panier mwen", data: panierList),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      const HomeScreen(),
+      ListDisplayPage(title: "Favori mwen yo", data: favorisList, onRemove: () => setState(() {})),
+      ListDisplayPage(title: "Panye mwen", data: panierList, onRemove: () => setState(() {})),
+    ];
+
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favoris'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Panier'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Akèy'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favori'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Panye'),
         ],
       ),
     );
   }
 }
 
-// --- 3. HOME SCREEN ---
+// --- 5. HOME SCREEN ---
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -226,15 +223,15 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             _buildCat(context, "Kategori Elektwonik"),
-            _buildCat(context, "Kategori Rad"),
-            const Padding(padding: EdgeInsets.all(15), child: Align(alignment: Alignment.centerLeft, child: Text("Top Pwodwi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
+            _buildCat(context, "Kategori Rad ak Akseswa"),
+            const Padding(padding: EdgeInsets.all(15), child: Align(alignment: Alignment.centerLeft, child: Text("Top Pwodui", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 4,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
-              itemBuilder: (context, index) => _rectCard(context, "Pwodwi Top $index"),
+              itemBuilder: (context, index) => _rectCard(context, "Pwodui Top $index"),
             ),
           ],
         ),
@@ -269,7 +266,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// --- EKRAN KATEGORI ---
 class CategoryView extends StatelessWidget {
   final String catName;
   const CategoryView({super.key, required this.catName});
@@ -299,7 +295,6 @@ class CategoryView extends StatelessWidget {
   }
 }
 
-// --- 4. DETAY ---
 class DetailScreen extends StatelessWidget {
   final String productName;
   const DetailScreen({super.key, required this.productName});
@@ -313,7 +308,7 @@ class DetailScreen extends StatelessWidget {
           Container(height: 250, color: const Color(0xFF0D2A5B), width: double.infinity),
           const SizedBox(height: 20),
           Text(productName, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          const Padding(padding: EdgeInsets.all(20), child: Text("Sa se deskripsyon rektangilè pou pwodwi ou chwazi a.", textAlign: TextAlign.center)),
+          const Padding(padding: EdgeInsets.all(20), child: Text("Deskripsyon pwodwi EBoutikoo.", textAlign: TextAlign.center)),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.only(bottom: 40),
@@ -321,9 +316,9 @@ class DetailScreen extends StatelessWidget {
               backgroundColor: Colors.orange,
               onPressed: () {
                 panierList.add(productName);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$productName ajoute nan panier!")));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$productName ajoute nan panye a!")));
               },
-              label: const Text("Ajoute nan Panier"),
+              label: const Text("Ajoute nan Panye"),
               icon: const Icon(Icons.add),
             ),
           ),
@@ -333,7 +328,6 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
-// --- 5. LIS TOUT PWODWI ---
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
   @override
@@ -341,22 +335,16 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  // Lis ki konbine tout pwodwi yo mande yo
   final List<String> allProducts = [
-    "Laptop Dell",
-    "iPhone 15 Pro",
-    "Pwodwi Top 0",
-    "Pwodwi Top 1",
-    "Pwodwi Top 2",
-    "Pwodwi Top 3",
-    "Chemiz Lakou",
-    "Wòb Tradisyonèl"
+    "Dell XPS", "iPhone 15 Pro", "Samsung S23", "Aplle Watch",
+    "Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"
   ];
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tout Pwodwi")),
+      appBar: AppBar(title: const Text("Tout Pwodui")),
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 10, crossAxisSpacing: 10),
@@ -373,7 +361,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   children: [
                     IconButton(icon: const Icon(Icons.shopping_cart, color: Colors.blue), onPressed: () {
                       setState(() => panierList.add(name));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ajoute nan panier!")));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ajoute nan panye!")));
                     }),
                     IconButton(
                       icon: Icon(favorisList.contains(name) ? Icons.favorite : Icons.favorite_border, color: Colors.red),
@@ -390,31 +378,43 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 }
 
-// --- PAJ DISPLAY ---
-class ListDisplayPage extends StatelessWidget {
+class ListDisplayPage extends StatefulWidget {
   final String title;
   final List<String> data;
-  const ListDisplayPage({super.key, required this.title, required this.data});
+  final VoidCallback onRemove;
+  const ListDisplayPage({super.key, required this.title, required this.data, required this.onRemove});
 
+  @override
+  State<ListDisplayPage> createState() => _ListDisplayPageState();
+}
+
+class _ListDisplayPageState extends State<ListDisplayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: data.isEmpty
-          ? const Center(child: Text("Pa gen anyen isit la!"))
+      appBar: AppBar(title: Text(widget.title)),
+      body: widget.data.isEmpty
+          ? const Center(child: Text("Pa gen anyen la!"))
           : ListView.builder(
-        itemCount: data.length,
+        itemCount: widget.data.length,
         itemBuilder: (context, index) => ListTile(
           leading: const Icon(Icons.check_box, color: Color(0xFF0D2A5B)),
-          title: Text(data[index]),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          title: Text(widget.data[index]),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete_sweep, color: Colors.red),
+            onPressed: () {
+              setState(() {
+                widget.data.removeAt(index);
+              });
+              widget.onRemove();
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-// --- DRAWER ---
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
   @override
@@ -425,11 +425,11 @@ class AppDrawer extends StatelessWidget {
           const UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: Color(0xFF5E81F4)),
               accountName: Text("EBoutikoo"),
-              accountEmail: Text("lakoukajou@gmail.com")
+              accountEmail: Text("Byenvini Kliyan!")
           ),
           ListTile(
               leading: const Icon(Icons.list),
-              title: const Text("Lis Pwodwi"),
+              title: const Text("Lis Pwodui"),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductListScreen()))
           ),
           ListTile(
