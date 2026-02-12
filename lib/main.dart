@@ -85,7 +85,81 @@ class _LoginPageState extends State<LoginPage> {
             TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder())),
             const SizedBox(height: 20),
             SizedBox(width: double.infinity, child: ElevatedButton(onPressed: doLogin, child: const Text("KONEKTE"))),
+            // Bouton ki mennen nan Sign Up
+            TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpPage())),
+              child: const Text("Ou pa gen kont? Enskri"),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// --- NOUVO: SIGN UP PAGE ---
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final confirmEmailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Enskripsyon")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Imel", border: OutlineInputBorder()),
+                  validator: (value) => (value == null || !isValidEmail(value)) ? "Format imel la pa bon" : null,
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: confirmEmailController,
+                  decoration: const InputDecoration(labelText: "Konfime Imel", border: OutlineInputBorder()),
+                  validator: (value) => (value != emailController.text) ? "Imel yo pa koresponn" : null,
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: "Modpas", border: OutlineInputBorder()),
+                  validator: (value) => (value == null || value.length < 8) ? "Modpas la dwe gen 8 karaktè min." : null,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        fakeDatabase[emailController.text] = passwordController.text;
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kont kreye ak siksè!")));
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text("ENSKRI"),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -124,7 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (i) {
-          // KORÈKSYON ISIT LA: Nou retire mo "const" la
           if (i == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => ListDisplayPage(title: "Favoris mwen", data: favorisList)));
           if (i == 2) Navigator.push(context, MaterialPageRoute(builder: (_) => ListDisplayPage(title: "Panier mwen", data: panierList)));
         },
