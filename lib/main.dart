@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+// --- DONE GLOBAL ---
 Map<String, String> fakeDatabase = {"lakoukajou@gmail.com": "poutimoun"};
 List<String> panierList = [];
 List<String> favorisList = [];
 
+// Done kategori yo (Non yo dwe koresponn egzakteman ak bouton yo)
 Map<String, List<String>> kategotyData = {
-  "Kategori Elektwonik": ["Dell XPS", "iPhone 15 Pro", "Samsung S23", "Aplle Watch"],
+  "Kategori Elektwonik": ["Dell XPS", "iPhone 15 Pro", "Samsung S23", "Apple Watch"],
   "Kategori Rad": ["Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"],
 };
 
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// --- 1. SPLASH SCREEN ---
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -50,6 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
+// --- 2. LOGIN PAGE ---
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
@@ -108,6 +112,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+// --- 3. SIGN UP PAGE ---
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
   @override
@@ -144,7 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: "Modpas dwe gen 8 karaktè pou pi piti)", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: "Modpas (8 karaktè min.)", border: OutlineInputBorder()),
                   validator: (value) => (value == null || value.length < 8) ? "8 karaktè pou pi piti" : null,
                 ),
                 const SizedBox(height: 15),
@@ -177,7 +182,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// --- 4. MAIN NAVIGATION (LOCK BOTTOM NAV) ---
+// --- 4. MAIN NAVIGATION ---
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
   @override
@@ -216,6 +221,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lis pwodui pou akey la (Dell, iPhone, Samsung, Watch)
+    final List<String> topProds = kategotyData["Kategori Elektwonik"]!;
+
     return Scaffold(
       appBar: AppBar(title: const Text("EBoutikoo")),
       drawer: const AppDrawer(),
@@ -223,15 +231,15 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             _buildCat(context, "Kategori Elektwonik"),
-            _buildCat(context, "Kategori Rad ak Akseswa"),
+            _buildCat(context, "Kategori Rad"),
             const Padding(padding: EdgeInsets.all(15), child: Align(alignment: Alignment.centerLeft, child: Text("Top Pwodui", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 4,
+              itemCount: topProds.length,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
-              itemBuilder: (context, index) => _rectCard(context, "Pwodui Top $index"),
+              itemBuilder: (context, index) => _rectCard(context, topProds[index]),
             ),
           ],
         ),
@@ -266,16 +274,21 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+// --- 6. CATEGORY VIEW ---
 class CategoryView extends StatelessWidget {
   final String catName;
   const CategoryView({super.key, required this.catName});
 
   @override
   Widget build(BuildContext context) {
+    // Isit la nou rekipere pwodui yo nan map la
     List<String> prods = kategotyData[catName] ?? [];
+
     return Scaffold(
       appBar: AppBar(title: Text(catName)),
-      body: GridView.builder(
+      body: prods.isEmpty
+          ? const Center(child: Text("Pa gen pwodui nan kategori sa a"))
+          : GridView.builder(
         padding: const EdgeInsets.all(10),
         itemCount: prods.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
@@ -295,6 +308,7 @@ class CategoryView extends StatelessWidget {
   }
 }
 
+// --- 7. DETAIL SCREEN ---
 class DetailScreen extends StatelessWidget {
   final String productName;
   const DetailScreen({super.key, required this.productName});
@@ -328,6 +342,7 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
+// --- 8. PRODUCT LIST SCREEN (DRAWER) ---
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
   @override
@@ -336,10 +351,9 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   final List<String> allProducts = [
-    "Dell XPS", "iPhone 15 Pro", "Samsung S23", "Aplle Watch",
+    "Dell XPS", "iPhone 15 Pro", "Samsung S23", "Apple Watch",
     "Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -378,6 +392,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 }
 
+// --- 9. DISPLAY PAGE (FAVORI / PANYE) ---
 class ListDisplayPage extends StatefulWidget {
   final String title;
   final List<String> data;
@@ -415,6 +430,7 @@ class _ListDisplayPageState extends State<ListDisplayPage> {
   }
 }
 
+// --- 10. DRAWER ---
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
   @override
