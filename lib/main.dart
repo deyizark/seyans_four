@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-// --- DONE GLOBAL ---
 Map<String, String> fakeDatabase = {"lakoukajou@gmail.com": "poutimoun"};
 List<String> panierList = [];
 List<String> favorisList = [];
 
-// Map pou imaj yo
 Map<String, String> productImages = {
   "Dell XPS": "https://5.imimg.com/data5/SELLER/Default/2022/5/VX/XE/LC/54741597/dell-xps-13-laptop-500x500.png",
   "iPhone 15 Pro": "https://th.bing.com/th/id/OIP.NzPh8yBjFNpYb6friqEoIgHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
 };
 
-// Done kategori yo
 Map<String, List<String>> kategotyData = {
   "Kategori Elektwonik": ["Dell XPS", "iPhone 15 Pro", "Samsung S23", "Apple Watch"],
   "Kategori Rad": ["Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"],
@@ -36,7 +33,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- 1. SPLASH SCREEN ---
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -59,7 +55,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// --- 2. LOGIN PAGE ---
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
@@ -118,7 +113,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// --- 3. SIGN UP PAGE ---
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
   @override
@@ -188,7 +182,6 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// --- 4. MAIN NAVIGATION ---
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
   @override
@@ -221,7 +214,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 }
 
-// --- 5. HOME SCREEN ---
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -286,7 +278,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// --- 6. CATEGORY VIEW ---
 class CategoryView extends StatelessWidget {
   final String catName;
   const CategoryView({super.key, required this.catName});
@@ -328,7 +319,6 @@ class CategoryView extends StatelessWidget {
   }
 }
 
-// --- 7. DETAIL SCREEN ---
 class DetailScreen extends StatelessWidget {
   final String productName;
   const DetailScreen({super.key, required this.productName});
@@ -370,7 +360,6 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
-// --- 8. PRODUCT LIST SCREEN (DRAWER) ---
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
   @override
@@ -426,7 +415,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 }
 
-// --- 9. DISPLAY PAGE (FAVORI / PANYE) ---
 class ListDisplayPage extends StatefulWidget {
   final String title;
   final List<String> data;
@@ -464,7 +452,6 @@ class _ListDisplayPageState extends State<ListDisplayPage> {
   }
 }
 
-// --- 10. DRAWER ---
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
   @override
