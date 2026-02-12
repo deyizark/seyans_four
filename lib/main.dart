@@ -6,7 +6,13 @@ Map<String, String> fakeDatabase = {"lakoukajou@gmail.com": "poutimoun"};
 List<String> panierList = [];
 List<String> favorisList = [];
 
-// Done kategori yo (Non yo dwe koresponn egzakteman ak bouton yo)
+// Map pou imaj yo
+Map<String, String> productImages = {
+  "Dell XPS": "https://5.imimg.com/data5/SELLER/Default/2022/5/VX/XE/LC/54741597/dell-xps-13-laptop-500x500.png",
+  "iPhone 15 Pro": "https://th.bing.com/th/id/OIP.NzPh8yBjFNpYb6friqEoIgHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+};
+
+// Done kategori yo
 Map<String, List<String>> kategotyData = {
   "Kategori Elektwonik": ["Dell XPS", "iPhone 15 Pro", "Samsung S23", "Apple Watch"],
   "Kategori Rad": ["Chemiz Polo", "Birkin", "Linèt ZARA", "Jeans LEVIS"],
@@ -143,13 +149,13 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: emailController,
                   decoration: const InputDecoration(labelText: "Imel", border: OutlineInputBorder()),
-                  validator: (value) => (value == null || !isValidEmail(value)) ? "Format imel la pa bon" : null,
+                  validator: (value) => (value == null || !isValidEmail(value)) ? "Fòma imel la pa bon" : null,
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: "Modpas (8 karaktè min.)", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: "Modpas, 8 karaktè pou pi piti)", border: OutlineInputBorder()),
                   validator: (value) => (value == null || value.length < 8) ? "8 karaktè pou pi piti" : null,
                 ),
                 const SizedBox(height: 15),
@@ -221,7 +227,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lis pwodui pou akey la (Dell, iPhone, Samsung, Watch)
     final List<String> topProds = kategotyData["Kategori Elektwonik"]!;
 
     return Scaffold(
@@ -260,12 +265,19 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _rectCard(BuildContext context, String name) {
+    String? imageUrl = productImages[name];
+
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(productName: name))),
       child: Card(
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            Expanded(child: Container(color: const Color(0xFF0D2A5B), width: double.infinity)),
+            Expanded(
+              child: imageUrl != null
+                  ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity)
+                  : Container(color: const Color(0xFF0D2A5B), width: double.infinity),
+            ),
             Padding(padding: const EdgeInsets.all(8.0), child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),
           ],
         ),
@@ -281,7 +293,6 @@ class CategoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Isit la nou rekipere pwodui yo nan map la
     List<String> prods = kategotyData[catName] ?? [];
 
     return Scaffold(
@@ -292,17 +303,26 @@ class CategoryView extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         itemCount: prods.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8, mainAxisSpacing: 10, crossAxisSpacing: 10),
-        itemBuilder: (context, index) => GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(productName: prods[index]))),
-          child: Card(
-            child: Column(
-              children: [
-                Expanded(child: Container(color: const Color(0xFF0D2A5B), width: double.infinity)),
-                Padding(padding: const EdgeInsets.all(8.0), child: Text(prods[index], style: const TextStyle(fontWeight: FontWeight.bold))),
-              ],
+        itemBuilder: (context, index) {
+          String name = prods[index];
+          String? imageUrl = productImages[name];
+          return GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(productName: name))),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: imageUrl != null
+                        ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity)
+                        : Container(color: const Color(0xFF0D2A5B), width: double.infinity),
+                  ),
+                  Padding(padding: const EdgeInsets.all(8.0), child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -315,11 +335,19 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? imageUrl = productImages[productName];
+
     return Scaffold(
       appBar: AppBar(title: const Text("Detay")),
       body: Column(
         children: [
-          Container(height: 250, color: const Color(0xFF0D2A5B), width: double.infinity),
+          Container(
+            height: 250,
+            width: double.infinity,
+            child: imageUrl != null
+                ? Image.network(imageUrl, fit: BoxFit.cover)
+                : Container(color: const Color(0xFF0D2A5B)),
+          ),
           const SizedBox(height: 20),
           Text(productName, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const Padding(padding: EdgeInsets.all(20), child: Text("Deskripsyon pwodwi EBoutikoo.", textAlign: TextAlign.center)),
@@ -358,17 +386,23 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tout Pwodui")),
+      appBar: AppBar(title: const Text("Tout Pwodui Yo")),
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 10, crossAxisSpacing: 10),
         itemCount: allProducts.length,
         itemBuilder: (context, index) {
           String name = allProducts[index];
+          String? imageUrl = productImages[name];
           return Card(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
-                Expanded(child: Container(color: const Color(0xFF0D2A5B), width: double.infinity)),
+                Expanded(
+                  child: imageUrl != null
+                      ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity)
+                      : Container(color: const Color(0xFF0D2A5B), width: double.infinity),
+                ),
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
